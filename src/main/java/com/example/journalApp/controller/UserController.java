@@ -66,17 +66,17 @@ public class UserController {
 			messagePostName = ", Today's weather feels like " + weather.getCurrent().getTemperature();
 		}
 		
-		String quoteResp = quotesService.getDailyQuotes();
-		String quote = "";
-		String author = "";
-		String quoteMsg = "";
+//		String quoteResp = quotesService.getDailyQuotes();
+//		String quote = "";
+//		String author = "";
+//		String quoteMsg = "";
 //		if(quoteResp != null) {
 //			quote = quoteResp.getQuote();
 //			author = quoteResp.getAuthor();
 //			quoteMsg = "\nQuote for the Day!\n" + quote + "\n" + author;
 //		}
 		
-		String greetingMessage = messagePreName + auth.getName() + messagePostName + quoteMsg;
+		String greetingMessage = messagePreName + auth.getName() + messagePostName;
 		return new ResponseEntity<>(greetingMessage, HttpStatus.OK);
 	}
 }
