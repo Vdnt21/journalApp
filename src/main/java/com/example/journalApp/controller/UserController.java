@@ -6,13 +6,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.journalApp.api.response.QuoteResponse;
+import com.example.journalApp.api.response.WeatherResponse;
 import com.example.journalApp.entity.User;
+import com.example.journalApp.service.QuotesService;
 import com.example.journalApp.service.UserService;
+import com.example.journalApp.service.WeatherService;
 
 @RestController
 @RequestMapping("/user")
@@ -20,26 +25,12 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-
-//	@GetMapping
-//	public ResponseEntity<List<User>> getAll() {
-//		List<User> users = userService.getAll();
-//
-//		if (users != null && !users.isEmpty()) {
-//			return new ResponseEntity<>(users, HttpStatus.OK);
-//		}
-//		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//	}
-//
-//	@GetMapping("id/{userId}")
-//	public ResponseEntity<User> getUserById(@PathVariable ObjectId userId) {
-//		Optional<User> user = userService.findUserById(userId);
-//
-//		if (user.isPresent()) {
-//			return new ResponseEntity<>(user.get(), HttpStatus.OK);
-//		}
-//		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//	}
+	
+	@Autowired
+	private WeatherService weatherService;
+	
+	@Autowired
+	private QuotesService quotesService;
 
 	@DeleteMapping
 	public ResponseEntity<?> deleteUserById() {
@@ -62,5 +53,30 @@ public class UserController {
 			userService.saveNewUser(userInDb);
 		}
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	@GetMapping
+	public ResponseEntity<?> greeting() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		WeatherResponse weather = weatherService.getWeather("Noida");
+		String messagePreName = "";
+		String messagePostName = "";
+		if(weather != null) {
+			messagePreName = weather.getCurrent().getIsDay().equals("yes") ? "Good Morning! " : "Good Evening! ";
+			messagePostName = ", Today's weather feels like " + weather.getCurrent().getTemperature();
+		}
+		
+		String quoteResp = quotesService.getDailyQuotes();
+		String quote = "";
+		String author = "";
+		String quoteMsg = "";
+//		if(quoteResp != null) {
+//			quote = quoteResp.getQuote();
+//			author = quoteResp.getAuthor();
+//			quoteMsg = "\nQuote for the Day!\n" + quote + "\n" + author;
+//		}
+		
+		String greetingMessage = messagePreName + auth.getName() + messagePostName + quoteMsg;
+		return new ResponseEntity<>(greetingMessage, HttpStatus.OK);
 	}
 }
